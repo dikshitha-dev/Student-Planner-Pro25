@@ -6,13 +6,14 @@ export default function NotesLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
+        headerStyle: { backgroundColor: colors.headerBg },
         headerTintColor: colors.foreground,
         headerTitleStyle: { fontFamily: "Inter_600SemiBold" },
+        headerShadowVisible: false,
         contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Notes" }} />
+      <Stack.Screen name="index" options={{ title: "My Notes" }} />
       <Stack.Screen name="new" options={{ title: "New Note" }} />
     </Stack>
   );

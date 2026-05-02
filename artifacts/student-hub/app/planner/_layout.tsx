@@ -6,9 +6,10 @@ export default function PlannerLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
+        headerStyle: { backgroundColor: colors.headerBg },
         headerTintColor: colors.foreground,
         headerTitleStyle: { fontFamily: "Inter_600SemiBold" },
+        headerShadowVisible: false,
         contentStyle: { backgroundColor: colors.background },
       }}
     >

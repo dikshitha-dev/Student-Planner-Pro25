@@ -11,18 +11,23 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useColors } from "@/hooks/useColors";
+import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { useLogin } from "@workspace/api-client-react";
 import * as Haptics from "expo-haptics";
 
 export default function LoginScreen() {
   const colors = useColors();
+  const { toggleTheme, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const loginMutation = useLogin();
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -44,68 +49,102 @@ export default function LoginScreen() {
     }
   };
 
-  const s = styles(colors, topPad, bottomPad);
-
   return (
-    <View style={s.container}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Theme toggle top-right */}
+      <TouchableOpacity
+        onPress={toggleTheme}
+        style={[s.themeBtn, { top: topPad + 12, backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(99,102,241,0.12)" }]}
+        activeOpacity={0.7}
+      >
+        <Ionicons name={isDark ? "sunny" : "moon"} size={18} color={isDark ? "#FCD34D" : colors.primary} />
+      </TouchableOpacity>
+
       <KeyboardAwareScrollViewCompat
-        contentContainerStyle={s.scrollContent}
+        contentContainerStyle={{ flexGrow: 1, paddingTop: topPad + 60, paddingBottom: bottomPad + 32, paddingHorizontal: 24, justifyContent: "center" }}
         keyboardShouldPersistTaps="handled"
         bottomOffset={20}
       >
-        <View style={s.header}>
-          <View style={s.logoContainer}>
+        {/* Logo */}
+        <View style={s.logoArea}>
+          <LinearGradient
+            colors={[colors.gradientStart, colors.gradientEnd]}
+            style={s.logoGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
             <Text style={s.logoText}>SPH</Text>
-          </View>
-          <Text style={s.title}>Welcome back</Text>
-          <Text style={s.subtitle}>Your study hub awaits</Text>
+          </LinearGradient>
+          <Text style={[s.appName, { color: colors.foreground }]}>Student Productivity Hub</Text>
+          <Text style={[s.tagline, { color: colors.mutedForeground }]}>Your academic command center</Text>
         </View>
 
-        <View style={s.form}>
-          <View style={s.fieldGroup}>
-            <Text style={s.label}>Email</Text>
-            <TextInput
-              style={s.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@university.edu"
-              placeholderTextColor={colors.mutedForeground}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
+        {/* Card */}
+        <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.cardShadow }]}>
+          <Text style={[s.cardTitle, { color: colors.foreground }]}>Welcome back</Text>
 
-          <View style={s.fieldGroup}>
-            <Text style={s.label}>Password</Text>
-            <TextInput
-              style={s.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              placeholderTextColor={colors.mutedForeground}
-              secureTextEntry
-            />
+          <View style={s.fields}>
+            <View style={s.fieldGroup}>
+              <Text style={[s.label, { color: colors.mutedForeground }]}>EMAIL</Text>
+              <View style={[s.inputRow, { backgroundColor: colors.input, borderColor: colors.border }]}>
+                <Ionicons name="mail-outline" size={16} color={colors.mutedForeground} style={{ marginRight: 8 }} />
+                <TextInput
+                  style={[s.input, { color: colors.foreground }]}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="you@university.edu"
+                  placeholderTextColor={colors.mutedForeground}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+            </View>
+
+            <View style={s.fieldGroup}>
+              <Text style={[s.label, { color: colors.mutedForeground }]}>PASSWORD</Text>
+              <View style={[s.inputRow, { backgroundColor: colors.input, borderColor: colors.border }]}>
+                <Ionicons name="lock-closed-outline" size={16} color={colors.mutedForeground} style={{ marginRight: 8 }} />
+                <TextInput
+                  style={[s.input, { color: colors.foreground, flex: 1 }]}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.mutedForeground}
+                  secureTextEntry={!showPass}
+                />
+                <TouchableOpacity onPress={() => setShowPass(!showPass)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                  <Ionicons name={showPass ? "eye-off-outline" : "eye-outline"} size={16} color={colors.mutedForeground} />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           <TouchableOpacity
-            style={[s.button, loginMutation.isPending && s.buttonDisabled]}
             onPress={handleLogin}
             disabled={loginMutation.isPending}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
+            style={{ borderRadius: 14, overflow: "hidden", marginTop: 4 }}
           >
-            {loginMutation.isPending ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
-            ) : (
-              <Text style={s.buttonText}>Sign In</Text>
-            )}
+            <LinearGradient
+              colors={[colors.gradientStart, colors.gradientEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[s.btn, loginMutation.isPending && { opacity: 0.7 }]}
+            >
+              {loginMutation.isPending ? (
+                <ActivityIndicator color="#FFF" size="small" />
+              ) : (
+                <Text style={s.btnText}>Sign In</Text>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
         <View style={s.footer}>
-          <Text style={s.footerText}>Don't have an account? </Text>
+          <Text style={[s.footerText, { color: colors.mutedForeground }]}>Don't have an account? </Text>
           <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
-            <Text style={s.footerLink}>Create one</Text>
+            <Text style={[s.footerLink, { color: colors.primary }]}>Create one</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollViewCompat>
@@ -113,54 +152,56 @@ export default function LoginScreen() {
   );
 }
 
-const styles = (colors: ReturnType<typeof useColors>, topPad: number, bottomPad: number) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    scrollContent: {
-      flexGrow: 1,
-      paddingTop: topPad + 32,
-      paddingBottom: bottomPad + 32,
-      paddingHorizontal: 24,
-      justifyContent: "center",
-    },
-    header: { alignItems: "center", marginBottom: 48 },
-    logoContainer: {
-      width: 72,
-      height: 72,
-      borderRadius: 20,
-      backgroundColor: colors.primary,
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: 24,
-    },
-    logoText: { color: "#FFF", fontSize: 22, fontFamily: "Inter_700Bold" },
-    title: { fontSize: 28, fontFamily: "Inter_700Bold", color: colors.foreground, marginBottom: 8 },
-    subtitle: { fontSize: 15, fontFamily: "Inter_400Regular", color: colors.mutedForeground },
-    form: { gap: 20, marginBottom: 32 },
-    fieldGroup: { gap: 8 },
-    label: { fontSize: 13, fontFamily: "Inter_600SemiBold", color: colors.foreground, letterSpacing: 0.3 },
-    input: {
-      height: 52,
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      fontSize: 15,
-      fontFamily: "Inter_400Regular",
-      color: colors.foreground,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    button: {
-      height: 52,
-      backgroundColor: colors.primary,
-      borderRadius: 14,
-      alignItems: "center",
-      justifyContent: "center",
-      marginTop: 8,
-    },
-    buttonDisabled: { opacity: 0.6 },
-    buttonText: { color: "#FFF", fontSize: 16, fontFamily: "Inter_600SemiBold" },
-    footer: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
-    footerText: { fontSize: 14, fontFamily: "Inter_400Regular", color: colors.mutedForeground },
-    footerLink: { fontSize: 14, fontFamily: "Inter_600SemiBold", color: colors.primary },
-  });
+const s = StyleSheet.create({
+  themeBtn: {
+    position: "absolute",
+    right: 20,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoArea: { alignItems: "center", marginBottom: 32, gap: 8 },
+  logoGradient: {
+    width: 76,
+    height: 76,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  logoText: { color: "#FFF", fontSize: 24, fontFamily: "Inter_700Bold", letterSpacing: 1 },
+  appName: { fontSize: 18, fontFamily: "Inter_700Bold" },
+  tagline: { fontSize: 13, fontFamily: "Inter_400Regular" },
+  card: {
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    marginBottom: 24,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 24,
+    elevation: 6,
+    gap: 20,
+  },
+  cardTitle: { fontSize: 22, fontFamily: "Inter_700Bold" },
+  fields: { gap: 16 },
+  fieldGroup: { gap: 8 },
+  label: { fontSize: 11, fontFamily: "Inter_600SemiBold", letterSpacing: 0.8 },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 50,
+    borderRadius: 13,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+  },
+  input: { flex: 1, fontSize: 15, fontFamily: "Inter_400Regular" },
+  btn: { height: 52, alignItems: "center", justifyContent: "center", borderRadius: 14 },
+  btnText: { color: "#FFF", fontSize: 16, fontFamily: "Inter_600SemiBold" },
+  footer: { flexDirection: "row", justifyContent: "center" },
+  footerText: { fontSize: 14, fontFamily: "Inter_400Regular" },
+  footerLink: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
+});
