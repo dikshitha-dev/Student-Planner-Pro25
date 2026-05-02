@@ -1,0 +1,77 @@
+Build a full-stack mobile application called "Student Productivity Hub" with a premium, modern, high-end UI/UX.
+
+The application must include the following modules:
+
+1. Habit Tracker:
+- Track daily study hours, water intake, and sleep
+- Show daily streak system
+- Display weekly progress using graphs
+
+2. Smart Notes Summarizer:
+- Allow users to paste long text
+- Generate concise summaries using an NLP API
+- Prefer integration with Grok API (xAI) or a similar advanced LLM API if Grok API is not available
+
+3. Last-Minute Study Planner:
+- Input subjects and exam dates
+- Generate an optimized daily study plan
+- Logic:
+  - More days → evenly distribute subjects
+  - Less time → prioritize important subjects
+
+4. Timetable Generator:
+- Add subjects and timings
+- Display a weekly timetable view
+- Optional: drag-and-drop editing feature
+
+App Structure:
+
+- Home Screen:
+  - Today’s study hours
+  - Upcoming tasks
+  - Navigation to all modules
+
+- Dashboard:
+  - Graphs for habits
+  - Streak tracking
+
+- Tools Section:
+  - Notes Summarizer
+  - Study Planner
+
+- Timetable Screen:
+  - Weekly view
+
+Technical Requirements:
+
+Frontend:
+- Use a modern framework (Flutter preferred)
+- UI must be premium, minimal, and visually appealing
+- Include smooth animations and clean layouts
+
+Backend:
+- Use Node.js with Express.js
+- Implement REST APIs for all features
+
+Database:
+- Use MongoDB
+- Store user data, habits, notes, planner data, and timetable
+
+Authentication:
+- Implement secure user authentication using MongoDB (JWT-based authentication system)
+
+APIs:
+- Integrate Grok API (xAI) for text summarization if available
+- If not available, use a compatible NLP API (OpenAI or Hugging Face)
+
+Additional Features:
+- Push notifications for reminders
+- Proper error handling
+- Loading states
+- Scalable and clean code architecture
+
+Ensure:
+- Full frontend-backend integration
+- Proper API handling
+- Clean folder structure
+- The app should be fully functional and production-ready

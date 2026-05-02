@@ -10,13 +10,22 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: habits
+    description: Habit tracking
+  - name: notes
+    description: Notes and summaries
+  - name: planner
+    description: Study planner
+  - name: timetable
+    description: Timetable management
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +33,388 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # Habits
+  /habits:
+    get:
+      operationId: getHabits
+      tags: [habits]
+      summary: Get habits for a date range
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+          description: ISO date string start
+        - in: query
+          name: endDate
+          schema:
+            type: string
+          description: ISO date string end
+      responses:
+        "200":
+          description: List of habit logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HabitLog"
+
+    post:
+      operationId: upsertHabit
+      tags: [habits]
+      summary: Create or update habit log for a date
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertHabitBody"
+      responses:
+        "200":
+          description: Habit log saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HabitLog"
+
+  /habits/streak:
+    get:
+      operationId: getStreak
+      tags: [habits]
+      summary: Get current habit streak
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Streak data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreakData"
+
+  /habits/weekly:
+    get:
+      operationId: getWeeklyStats
+      tags: [habits]
+      summary: Get weekly habit statistics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Weekly stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeeklyStats"
+
+  # Notes
+  /notes:
+    get:
+      operationId: getNotes
+      tags: [notes]
+      summary: Get all notes
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+
+    post:
+      operationId: createNote
+      tags: [notes]
+      summary: Create a new note with AI summary
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNoteBody"
+      responses:
+        "201":
+          description: Note created with summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  /notes/{id}:
+    get:
+      operationId: getNote
+      tags: [notes]
+      summary: Get a note by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+    delete:
+      operationId: deleteNote
+      tags: [notes]
+      summary: Delete a note
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # Study Planner
+  /planner/subjects:
+    get:
+      operationId: getPlannerSubjects
+      tags: [planner]
+      summary: Get all planner subjects
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlannerSubject"
+
+    post:
+      operationId: createPlannerSubject
+      tags: [planner]
+      summary: Add a subject to the planner
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlannerSubjectBody"
+      responses:
+        "201":
+          description: Subject created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlannerSubject"
+
+  /planner/subjects/{id}:
+    delete:
+      operationId: deletePlannerSubject
+      tags: [planner]
+      summary: Delete a planner subject
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /planner/generate:
+    post:
+      operationId: generateStudyPlan
+      tags: [planner]
+      summary: Generate an optimized study plan
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Generated study plan
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudyPlanDay"
+
+  # Timetable
+  /timetable:
+    get:
+      operationId: getTimetable
+      tags: [timetable]
+      summary: Get all timetable entries
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of timetable entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimetableEntry"
+
+    post:
+      operationId: createTimetableEntry
+      tags: [timetable]
+      summary: Add a timetable entry
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTimetableEntryBody"
+      responses:
+        "201":
+          description: Entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetableEntry"
+
+  /timetable/{id}:
+    put:
+      operationId: updateTimetableEntry
+      tags: [timetable]
+      summary: Update a timetable entry
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTimetableEntryBody"
+      responses:
+        "200":
+          description: Entry updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetableEntry"
+
+    delete:
+      operationId: deleteTimetableEntry
+      tags: [timetable]
+      summary: Delete a timetable entry
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +424,311 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - email
+        - name
+        - createdAt
+
+    RegisterBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+      required:
+        - email
+        - password
+        - name
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    HabitLog:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        date:
+          type: string
+        studyHours:
+          type: number
+        waterIntake:
+          type: number
+        sleepHours:
+          type: number
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - userId
+        - date
+        - studyHours
+        - waterIntake
+        - sleepHours
+        - createdAt
+        - updatedAt
+
+    UpsertHabitBody:
+      type: object
+      properties:
+        date:
+          type: string
+        studyHours:
+          type: number
+        waterIntake:
+          type: number
+        sleepHours:
+          type: number
+      required:
+        - date
+        - studyHours
+        - waterIntake
+        - sleepHours
+
+    StreakData:
+      type: object
+      properties:
+        currentStreak:
+          type: integer
+        longestStreak:
+          type: integer
+        lastActiveDate:
+          type: string
+          nullable: true
+      required:
+        - currentStreak
+        - longestStreak
+        - lastActiveDate
+
+    WeeklyStats:
+      type: object
+      properties:
+        date:
+          type: string
+        studyHours:
+          type: number
+        waterIntake:
+          type: number
+        sleepHours:
+          type: number
+      required:
+        - date
+        - studyHours
+        - waterIntake
+        - sleepHours
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        title:
+          type: string
+        originalText:
+          type: string
+        summary:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - title
+        - originalText
+        - summary
+        - createdAt
+
+    CreateNoteBody:
+      type: object
+      properties:
+        title:
+          type: string
+        originalText:
+          type: string
+      required:
+        - title
+        - originalText
+
+    PlannerSubject:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        examDate:
+          type: string
+        priority:
+          type: integer
+        hoursNeeded:
+          type: number
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - name
+        - examDate
+        - priority
+        - hoursNeeded
+        - createdAt
+
+    CreatePlannerSubjectBody:
+      type: object
+      properties:
+        name:
+          type: string
+        examDate:
+          type: string
+        priority:
+          type: integer
+        hoursNeeded:
+          type: number
+      required:
+        - name
+        - examDate
+        - priority
+        - hoursNeeded
+
+    StudyPlanDay:
+      type: object
+      properties:
+        date:
+          type: string
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudySession"
+      required:
+        - date
+        - sessions
+
+    StudySession:
+      type: object
+      properties:
+        subjectId:
+          type: string
+        subjectName:
+          type: string
+        hours:
+          type: number
+      required:
+        - subjectId
+        - subjectName
+        - hours
+
+    TimetableEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        subjectName:
+          type: string
+        dayOfWeek:
+          type: integer
+          description: 0=Sunday, 6=Saturday
+        startTime:
+          type: string
+          description: HH:MM format
+        endTime:
+          type: string
+          description: HH:MM format
+        color:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - subjectName
+        - dayOfWeek
+        - startTime
+        - endTime
+        - color
+        - createdAt
+
+    CreateTimetableEntryBody:
+      type: object
+      properties:
+        subjectName:
+          type: string
+        dayOfWeek:
+          type: integer
+        startTime:
+          type: string
+        endTime:
+          type: string
+        color:
+          type: string
+      required:
+        - subjectName
+        - dayOfWeek
+        - startTime
+        - endTime
+        - color
+
+    UpdateTimetableEntryBody:
+      type: object
+      properties:
+        subjectName:
+          type: string
+        dayOfWeek:
+          type: integer
+        startTime:
+          type: string
+        endTime:
+          type: string
+        color:
+          type: string

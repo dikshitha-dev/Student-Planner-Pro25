@@ -8,3 +8,144 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface ErrorResponse {
+  error: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface RegisterBody {
+  email: string;
+  password: string;
+  name: string;
+}
+
+export interface LoginBody {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface HabitLog {
+  id: string;
+  userId: string;
+  date: string;
+  studyHours: number;
+  waterIntake: number;
+  sleepHours: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpsertHabitBody {
+  date: string;
+  studyHours: number;
+  waterIntake: number;
+  sleepHours: number;
+}
+
+export interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: string | null;
+}
+
+export interface WeeklyStats {
+  date: string;
+  studyHours: number;
+  waterIntake: number;
+  sleepHours: number;
+}
+
+export interface Note {
+  id: string;
+  userId: string;
+  title: string;
+  originalText: string;
+  summary: string;
+  createdAt: string;
+}
+
+export interface CreateNoteBody {
+  title: string;
+  originalText: string;
+}
+
+export interface PlannerSubject {
+  id: string;
+  userId: string;
+  name: string;
+  examDate: string;
+  priority: number;
+  hoursNeeded: number;
+  createdAt: string;
+}
+
+export interface CreatePlannerSubjectBody {
+  name: string;
+  examDate: string;
+  priority: number;
+  hoursNeeded: number;
+}
+
+export interface StudySession {
+  subjectId: string;
+  subjectName: string;
+  hours: number;
+}
+
+export interface StudyPlanDay {
+  date: string;
+  sessions: StudySession[];
+}
+
+export interface TimetableEntry {
+  id: string;
+  userId: string;
+  subjectName: string;
+  /** 0=Sunday, 6=Saturday */
+  dayOfWeek: number;
+  /** HH:MM format */
+  startTime: string;
+  /** HH:MM format */
+  endTime: string;
+  color: string;
+  createdAt: string;
+}
+
+export interface CreateTimetableEntryBody {
+  subjectName: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  color: string;
+}
+
+export interface UpdateTimetableEntryBody {
+  subjectName?: string;
+  dayOfWeek?: number;
+  startTime?: string;
+  endTime?: string;
+  color?: string;
+}
+
+export type GetHabitsParams = {
+  /**
+   * ISO date string start
+   */
+  startDate?: string;
+  /**
+   * ISO date string end
+   */
+  endDate?: string;
+};

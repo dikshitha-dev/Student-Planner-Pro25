@@ -8,9 +8,259 @@
 import * as zod from "zod";
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
+});
+
+/**
+ * @summary Register a new user
+ */
+export const RegisterBody = zod.object({
+  email: zod.string(),
+  password: zod.string(),
+  name: zod.string(),
+});
+
+/**
+ * @summary Login
+ */
+export const LoginBody = zod.object({
+  email: zod.string(),
+  password: zod.string(),
+});
+
+export const LoginResponse = zod.object({
+  token: zod.string(),
+  user: zod.object({
+    id: zod.string(),
+    email: zod.string(),
+    name: zod.string(),
+    createdAt: zod.string(),
+  }),
+});
+
+/**
+ * @summary Get current user
+ */
+export const GetMeResponse = zod.object({
+  id: zod.string(),
+  email: zod.string(),
+  name: zod.string(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Get habits for a date range
+ */
+export const GetHabitsQueryParams = zod.object({
+  startDate: zod.coerce.string().optional().describe("ISO date string start"),
+  endDate: zod.coerce.string().optional().describe("ISO date string end"),
+});
+
+export const GetHabitsResponseItem = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  date: zod.string(),
+  studyHours: zod.number(),
+  waterIntake: zod.number(),
+  sleepHours: zod.number(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+export const GetHabitsResponse = zod.array(GetHabitsResponseItem);
+
+/**
+ * @summary Create or update habit log for a date
+ */
+export const UpsertHabitBody = zod.object({
+  date: zod.string(),
+  studyHours: zod.number(),
+  waterIntake: zod.number(),
+  sleepHours: zod.number(),
+});
+
+export const UpsertHabitResponse = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  date: zod.string(),
+  studyHours: zod.number(),
+  waterIntake: zod.number(),
+  sleepHours: zod.number(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary Get current habit streak
+ */
+export const GetStreakResponse = zod.object({
+  currentStreak: zod.number(),
+  longestStreak: zod.number(),
+  lastActiveDate: zod.string().nullable(),
+});
+
+/**
+ * @summary Get weekly habit statistics
+ */
+export const GetWeeklyStatsResponseItem = zod.object({
+  date: zod.string(),
+  studyHours: zod.number(),
+  waterIntake: zod.number(),
+  sleepHours: zod.number(),
+});
+export const GetWeeklyStatsResponse = zod.array(GetWeeklyStatsResponseItem);
+
+/**
+ * @summary Get all notes
+ */
+export const GetNotesResponseItem = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  title: zod.string(),
+  originalText: zod.string(),
+  summary: zod.string(),
+  createdAt: zod.string(),
+});
+export const GetNotesResponse = zod.array(GetNotesResponseItem);
+
+/**
+ * @summary Create a new note with AI summary
+ */
+export const CreateNoteBody = zod.object({
+  title: zod.string(),
+  originalText: zod.string(),
+});
+
+/**
+ * @summary Get a note by ID
+ */
+export const GetNoteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetNoteResponse = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  title: zod.string(),
+  originalText: zod.string(),
+  summary: zod.string(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete a note
+ */
+export const DeleteNoteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary Get all planner subjects
+ */
+export const GetPlannerSubjectsResponseItem = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  name: zod.string(),
+  examDate: zod.string(),
+  priority: zod.number(),
+  hoursNeeded: zod.number(),
+  createdAt: zod.string(),
+});
+export const GetPlannerSubjectsResponse = zod.array(
+  GetPlannerSubjectsResponseItem,
+);
+
+/**
+ * @summary Add a subject to the planner
+ */
+export const CreatePlannerSubjectBody = zod.object({
+  name: zod.string(),
+  examDate: zod.string(),
+  priority: zod.number(),
+  hoursNeeded: zod.number(),
+});
+
+/**
+ * @summary Delete a planner subject
+ */
+export const DeletePlannerSubjectParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary Generate an optimized study plan
+ */
+export const GenerateStudyPlanResponseItem = zod.object({
+  date: zod.string(),
+  sessions: zod.array(
+    zod.object({
+      subjectId: zod.string(),
+      subjectName: zod.string(),
+      hours: zod.number(),
+    }),
+  ),
+});
+export const GenerateStudyPlanResponse = zod.array(
+  GenerateStudyPlanResponseItem,
+);
+
+/**
+ * @summary Get all timetable entries
+ */
+export const GetTimetableResponseItem = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  subjectName: zod.string(),
+  dayOfWeek: zod.number().describe("0=Sunday, 6=Saturday"),
+  startTime: zod.string().describe("HH:MM format"),
+  endTime: zod.string().describe("HH:MM format"),
+  color: zod.string(),
+  createdAt: zod.string(),
+});
+export const GetTimetableResponse = zod.array(GetTimetableResponseItem);
+
+/**
+ * @summary Add a timetable entry
+ */
+export const CreateTimetableEntryBody = zod.object({
+  subjectName: zod.string(),
+  dayOfWeek: zod.number(),
+  startTime: zod.string(),
+  endTime: zod.string(),
+  color: zod.string(),
+});
+
+/**
+ * @summary Update a timetable entry
+ */
+export const UpdateTimetableEntryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateTimetableEntryBody = zod.object({
+  subjectName: zod.string().optional(),
+  dayOfWeek: zod.number().optional(),
+  startTime: zod.string().optional(),
+  endTime: zod.string().optional(),
+  color: zod.string().optional(),
+});
+
+export const UpdateTimetableEntryResponse = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  subjectName: zod.string(),
+  dayOfWeek: zod.number().describe("0=Sunday, 6=Saturday"),
+  startTime: zod.string().describe("HH:MM format"),
+  endTime: zod.string().describe("HH:MM format"),
+  color: zod.string(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete a timetable entry
+ */
+export const DeleteTimetableEntryParams = zod.object({
+  id: zod.coerce.string(),
 });
